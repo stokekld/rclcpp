@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rclcpp_components)
 
+include(CheckLibraryExists)
+check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
+
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -43,6 +46,9 @@ target_link_libraries(component_container component_manager)
 ament_target_dependencies(component_container
   "rclcpp"
 )
+if(HAVE_LIBATOMICS)
+  target_link_libraries(component_container atomic)
+endif()
 
 set(node_main_template_install_dir "share/${PROJECT_NAME}")
 install(FILES
@@ -57,6 +63,9 @@ target_link_libraries(component_container_mt component_manager)
 ament_target_dependencies(component_container_mt
   "rclcpp"
 )
+if(HAVE_LIBATOMICS)
+  target_link_libraries(component_container_mt atomic)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_link_libraries(component_container "stdc++fs")
